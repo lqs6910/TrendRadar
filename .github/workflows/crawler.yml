@@ -213,3 +213,30 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy cloudflare_dist --project-name=${{ secrets.CLOUDFLARE_PROJECT_NAME }}
+
+      # --------------------------------------------------------------------------------
+      # 🚀 GITHUB PAGES DEPLOY / 部署到 GitHub Pages（必须）
+      # --------------------------------------------------------------------------------
+      - name: Prepare GitHub Pages artifact
+        if: success()
+        run: |
+          if [ ! -f index.html ]; then
+            echo "❌ index.html not found"
+            exit 1
+          fi
+          rm -rf gh_pages && mkdir -p gh_pages
+          cp index.html gh_pages/index.html
+
+      - name: Setup Pages
+        if: success()
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: success()
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: gh_pages
+
+      - name: Deploy to GitHub Pages
+        if: success()
+        uses: actions/deploy-pages@v4
